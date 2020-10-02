@@ -1,0 +1,12 @@
+name = "website"
+type = "webpack"
+account_id = "38729059835d992c8a221b09556bcd9a"
+workers_dev = true
+
+[env.production]
+route = "https://*rabbitmq.com/*"
+zone_id = "a5e92708a16a088d0abe3c9757f2d666"
+
+[site]
+bucket = "./site"
+entry-point = "workers-site"

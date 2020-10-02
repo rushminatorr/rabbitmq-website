@@ -78,3 +78,31 @@ clean:
 live:
 	@browser-sync start --proxy http://localhost:$(TCP_PORT) --files site --no-notify --no-open || \
 	  (echo "See $(BOLD)https://www.browsersync.io/$(NORMAL) for more info" && exit 1)
+
+ifeq ($(PLATFORM),Darwin)
+NPM ?= /usr/local/bin/npm
+$(NPM):
+	brew install node
+else
+NPM ?= /usr/bin/npm
+$(NPM):
+	$(error Please install NPM/node.js for your OS: https://nodejs.org/en/download/)
+endif
+WRANGLER ?= /usr/local/bin/wrangler
+$(WRANGLER): | $(NPM)
+	$(NPM) install -g @cloudflare/wrangler
+WRANGLER_CONFIG = $(HOME)/.wrangler/config/default.toml
+$(WRANGLER_CONFIG): | $(WRANGLER)
+	$(WRANGLER) config
+LIVE_SERVER ?= /usr/local/bin/live-server
+$(LIVE_SERVER): | $(NPM)
+	$(NPM) install -g live-server
+
+site-preview: | $(LIVE_SERVER)
+	$(LIVE_SERVER) site
+
+site-stage: | $(WRANGLER)
+	$(WRANGLER) publish
+
+site-live: | $(WRANGLER)
+	$(WRANGLER) publish --env production
